@@ -1,0 +1,29 @@
+{
+  "name": "twirl-server",
+  "workspaces": [
+    "https",
+    "udp",
+    "websockets"
+  ],
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "start:https": "npm --workspace=https run start",
+    "start:udp": "npm --workspace=udp run start",
+    "start:websockets": "npm --workspace=websockets run start"
+  },
+  "version": "1.0.0",
+  "description": "The server application for the Twirl - a multiplayer dancing MMORPG.",
+  "author": "Viktoriia Myts",
+  "license": "ISC",
+  "devDependencies": {
+    "@prisma/client": "^5.21.0",
+    "@types/node": "^22.7.5",
+    "prisma": "^5.21.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.1"
+  }
+}
