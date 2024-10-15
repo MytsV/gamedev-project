@@ -45,6 +45,7 @@ app.post('/register', async (req: Request, res: Response) => {
 });
 
 const SESSION_HASH_KEY = 'tokens';
+// TODO: find out whether it can be shortened
 const TOKEN_LENGTH = 32;
 
 const generateSessionToken = () => {
@@ -79,6 +80,7 @@ app.post('/login', async (req: Request, res: Response) => {
     }
 
     const token = generateSessionToken();
+    // TODO: use set instead to allow handling expiry
     await redis.hset(SESSION_HASH_KEY, user.id, token);
 
     res.status(200).json({token});

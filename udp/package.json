@@ -1,0 +1,20 @@
+{
+  "name": "udp-server",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --loader=ts-node/esm --watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "dgram": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
