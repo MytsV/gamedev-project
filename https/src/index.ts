@@ -2,10 +2,13 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import * as crypto from "crypto";
+import { default as Redis } from 'ioredis';
 
 dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
+const redis = new Redis.default(process.env.REDIS_URL!);
 
 app.use(express.json());
 
@@ -41,6 +44,13 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 });
 
+const SESSION_HASH_KEY = 'tokens';
+const TOKEN_LENGTH = 32;
+
+const generateSessionToken = () => {
+  return crypto.randomBytes(TOKEN_LENGTH).toString('hex');
+}
+
 app.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
@@ -68,7 +78,10 @@ app.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).send(`Welcome back, ${username}!`);
+    const token = generateSessionToken();
+    await redis.hset(SESSION_HASH_KEY, user.id, token);
+
+    res.status(200).json({token});
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
