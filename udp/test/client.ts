@@ -8,7 +8,8 @@ const calculateHmac = (message: string, secretKey: string): string => {
 };
 
 const userId = '4';
-const secretKey = '8bfcdd2380d7285a80d29c298975b13c783734562d757abfa3066c67a65913fb';
+const secretKey =
+  '8bfcdd2380d7285a80d29c298975b13c783734562d757abfa3066c67a65913fb';
 
 const message = 'Hello, this is a test message!';
 

@@ -15,7 +15,11 @@ const calculateHmac = (message: string, secretKey: string): string => {
 server.on('message', async (msg, rinfo) => {
   try {
     // TODO: find a different way to serialize it?
-    const data = JSON.parse(msg.toString()) as { user_id: string; message: string; hmac: string };
+    const data = JSON.parse(msg.toString()) as {
+      user_id: string;
+      message: string;
+      hmac: string;
+    };
 
     const { user_id, message, hmac } = data;
 

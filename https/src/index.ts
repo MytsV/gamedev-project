@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import * as crypto from "crypto";
+import * as crypto from 'crypto';
 import { default as Redis } from 'ioredis';
 
 dotenv.config();
@@ -50,7 +50,7 @@ const TOKEN_LENGTH = 32;
 
 const generateSessionToken = () => {
   return crypto.randomBytes(TOKEN_LENGTH).toString('hex');
-}
+};
 
 app.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -83,7 +83,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // TODO: use set instead to allow handling expiry
     await redis.hset(SESSION_HASH_KEY, user.id, token);
 
-    res.status(200).json({token});
+    res.status(200).json({ token });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
