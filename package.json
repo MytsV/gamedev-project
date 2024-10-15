@@ -10,7 +10,8 @@
     "prisma:migrate": "prisma migrate dev",
     "start:https": "npm --workspace=https run start",
     "start:udp": "npm --workspace=udp run start",
-    "start:websockets": "npm --workspace=websockets run start"
+    "start:websockets": "npm --workspace=websockets run start",
+    "lint": "prettier --write ./https/src/**/*.ts"
   },
   "version": "1.0.0",
   "description": "The server application for the Twirl - a multiplayer dancing MMORPG.",
