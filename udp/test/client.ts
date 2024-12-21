@@ -33,6 +33,8 @@ client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS, (error) => {
   } else {
     console.log('Message sent:', data);
   }
+});
 
-  client.close();
+client.on('message', (msg, rinfo) => {
+  console.log(msg.toString());
 });

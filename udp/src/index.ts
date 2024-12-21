@@ -1,8 +1,7 @@
-import dgram from 'dgram';
 import { BaseMessageSchema, TBaseMessage } from './models.js';
 import { validateMessage } from './auth.js';
-
-const server = dgram.createSocket('udp4');
+import {handleMessage} from "./handlers.js";
+import {server} from "./network/server.js";
 
 server.on('message', async (msg, rinfo) => {
   try {
@@ -18,6 +17,7 @@ server.on('message', async (msg, rinfo) => {
     console.log(
       `Valid message from user_id: ${parsedMessage.userId}: ${parsedMessage.contents}`
     );
+    handleMessage(parsedMessage, rinfo);
   } catch (error) {
     console.error('Error processing message:', error);
   }
