@@ -35,13 +35,13 @@ export const PlayerStateSchema = z.object({
   userId: z.string().nonempty(),
   latitude: z.number(),
   longitude: z.number(),
+  isMain: z.boolean(),
 });
 
 export type TPlayerState = z.infer<typeof PlayerStateSchema>;
 
 export const GameStateSchema = z.object({
-  player: PlayerStateSchema,
-  otherPlayers: z.array(PlayerStateSchema),
+  players: z.array(PlayerStateSchema),
 });
 
 export type TGameState = z.infer<typeof GameStateSchema>;
