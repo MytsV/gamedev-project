@@ -34,6 +34,26 @@ setInterval(() => {
   });
 }, 1000);
 
+setTimeout(() => {
+  const contents = {
+    latitude: 10,
+    longitude: 5,
+  };
+
+  const hmac = calculateHmac(JSON.stringify(contents), secretKey);
+
+  const data = {
+    userId: userId,
+    contents: contents,
+    hmac: hmac,
+    event: 'move',
+  };
+
+  const messageBuffer = Buffer.from(JSON.stringify(data));
+
+  client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS);
+}, 5000);
+
 client.on('message', (msg, rinfo) => {
   console.log(msg.toString());
 });

@@ -12,8 +12,8 @@ const getPlayerState = async (userId: string): Promise<TPlayerState> => {
 
   return {
     userId: userId,
-    longitude: parseInt(longitude),
-    latitude: parseInt(latitude),
+    longitude: parseFloat(longitude),
+    latitude: parseFloat(latitude),
   }
 };
 
@@ -44,8 +44,8 @@ export const getGameState = async (activeUserId: string): Promise<TGameState> =>
 export const initializePlayer = async (userId: string) => {
   await redis.sadd(ONLINE_SET_KEY, userId);
   const userHash = buildUserHash(userId);
-  await redis.hset(userHash, LONGITUDE_HASH_KEY, 0);
-  await redis.hset(userHash, LATITUDE_HASH_KEY, 0);
+  await redis.hsetnx(userHash, LONGITUDE_HASH_KEY, 0);
+  await redis.hsetnx(userHash, LATITUDE_HASH_KEY, 0);
 };
 
 export const disconnectPlayer = async (userId: string) => {
