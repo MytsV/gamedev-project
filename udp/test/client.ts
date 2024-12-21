@@ -11,14 +11,15 @@ const userId = '4';
 const secretKey =
   '8bfcdd2380d7285a80d29c298975b13c783734562d757abfa3066c67a65913fb';
 
-const message = 'Hello, this is a test message!';
+const contents = 'Hello!';
 
-const hmac = calculateHmac(message, secretKey);
+const hmac = calculateHmac(JSON.stringify(contents), secretKey);
 
 const data = {
-  user_id: userId,
-  message: message,
+  userId: userId,
+  contents: contents,
   hmac: hmac,
+  event: 'connection',
 };
 
 const messageBuffer = Buffer.from(JSON.stringify(data));

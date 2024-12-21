@@ -70,10 +70,7 @@ app.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      await user.passwordHash
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       res.status(401).send('Invalid username or password');
       return;
