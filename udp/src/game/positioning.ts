@@ -10,23 +10,23 @@ type Position = {
 const PLAYER_SPEED = 0.05;
 
 const getNewPosition = (current: Position, goal: Position): Position => {
-  let newLongitude = current.longitude;
-  let newLatitude = current.latitude;
+  const dx = goal.longitude - current.longitude;
+  const dy = goal.latitude - current.latitude;
 
-  if (current.longitude < goal.longitude) {
-    newLongitude = Math.min(current.longitude + PLAYER_SPEED, goal.longitude);
-  } else if (current.longitude > goal.longitude) {
-    newLongitude = Math.max(current.longitude - PLAYER_SPEED, goal.longitude);
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < PLAYER_SPEED) {
+    return goal;
   }
 
-  if (current.latitude < goal.latitude) {
-    newLatitude = Math.min(current.latitude + PLAYER_SPEED, goal.latitude);
-  } else if (current.latitude > goal.latitude) {
-    newLatitude = Math.max(current.latitude - PLAYER_SPEED, goal.latitude);
-  }
+  const directionX = dx / distance;
+  const directionY = dy / distance;
+
+  const newLongitude = current.longitude + directionX * PLAYER_SPEED;
+  const newLatitude = current.latitude + directionY * PLAYER_SPEED;
 
   return { longitude: newLongitude, latitude: newLatitude };
-}
+};
 
 const ongoingPositioning = new Map<string, NodeJS.Timeout>();
 
