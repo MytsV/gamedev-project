@@ -81,7 +81,7 @@ app.post('/login', async (req: Request, res: Response) => {
     const userHash = buildUserHash(user.id.toString());
     await redis.hset(userHash, SESSION_HASH_KEY, token);
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, userId: user.id });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
