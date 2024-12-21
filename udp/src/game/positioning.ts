@@ -7,7 +7,7 @@ type Position = {
   longitude: number;
 }
 
-const PLAYER_SPEED = 0.05;
+const PLAYER_SPEED = 2;
 
 const getNewPosition = (current: Position, goal: Position): Position => {
   const dx = goal.longitude - current.longitude;
@@ -30,8 +30,8 @@ const getNewPosition = (current: Position, goal: Position): Position => {
 
 const ongoingPositioning = new Map<string, NodeJS.Timeout>();
 
-const POSITIONING_INTERVAL = 100; // 10 Hz
-const POSITIONING_THRESHOLD = 0.1;
+const POSITIONING_INTERVAL = 50; // 20 Hz
+const POSITIONING_THRESHOLD = 0.5;
 
 export const issueMove = (userId: string, goal: Position) => {
   const previousIntervalId = ongoingPositioning.get(userId);

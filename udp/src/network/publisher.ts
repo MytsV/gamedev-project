@@ -8,7 +8,7 @@ const ongoingPublishing = new Map<string, NodeJS.Timeout>();
 export const publishState = async (userId: string, rinfo: dgram.RemoteInfo) => {
   await initializePlayer(userId);
 
-  const publishInterval = 1000; // 1 Hz for testing, change for the real application
+  const publishInterval = 100; // 10 Hz
 
   const previousIntervalId = ongoingPublishing.get(userId);
   if (previousIntervalId) {
