@@ -12,6 +12,12 @@
 
     /* Type Checking */
     "strict": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+  },
+  "references": [
+    {
+      "path": "./common",
+      "prepend": true,
+    }
+  ]
 }

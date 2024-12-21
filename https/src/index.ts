@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { default as Redis } from 'ioredis';
+import {SESSION_HASH_KEY, buildUserHash} from "../../common/models.js";
 
 dotenv.config();
 const app = express();
@@ -17,6 +18,7 @@ app.post('/register', async (req: Request, res: Response) => {
 
   if (!username || !password || !email) {
     res.status(400).send('Username, password, and email are required');
+    return;
   }
 
   try {
@@ -44,8 +46,6 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 });
 
-const SESSION_HASH_KEY = 'tokens';
-// TODO: find out whether it can be shortened
 const TOKEN_LENGTH = 32;
 
 const generateSessionToken = () => {
@@ -78,7 +78,8 @@ app.post('/login', async (req: Request, res: Response) => {
 
     const token = generateSessionToken();
     // TODO: use set instead to allow handling expiry
-    await redis.hset(SESSION_HASH_KEY, user.id, token);
+    const userHash = buildUserHash(user.id.toString());
+    await redis.hset(userHash, SESSION_HASH_KEY, token);
 
     res.status(200).json({ token });
   } catch (error) {

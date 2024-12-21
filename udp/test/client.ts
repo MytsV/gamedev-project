@@ -7,9 +7,9 @@ const calculateHmac = (message: string, secretKey: string): string => {
   return crypto.createHmac('sha256', secretKey).update(message).digest('hex');
 };
 
-const userId = '4';
+const userId = '10';
 const secretKey =
-  '8bfcdd2380d7285a80d29c298975b13c783734562d757abfa3066c67a65913fb';
+  '9f634268a6feac5460a6ee678e9261206c35d61bce4a71948ce797e77b7517de';
 
 const contents = 'Hello!';
 
