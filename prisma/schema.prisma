@@ -17,3 +17,12 @@ model User {
 
   @@map("users")
 }
+
+model Song {
+  id     Int     @id @default(autoincrement())
+  title  String
+  bpm    Int
+  onset  Float
+
+  @@map("songs")
+}
