@@ -4,7 +4,11 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { default as Redis } from 'ioredis';
-import { SESSION_HASH_KEY, buildUserHash } from '../../common/models.js';
+import {
+  SESSION_HASH_KEY,
+  buildUserHash,
+  USERNAME_HASH_KEY,
+} from '../../common/models.js';
 
 dotenv.config();
 const app = express();
@@ -80,6 +84,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // TODO: use set instead to allow handling expiry
     const userHash = buildUserHash(user.id.toString());
     await redis.hset(userHash, SESSION_HASH_KEY, token);
+    await redis.hset(userHash, USERNAME_HASH_KEY, username);
 
     res.status(200).json({ token, userId: user.id });
   } catch (error) {

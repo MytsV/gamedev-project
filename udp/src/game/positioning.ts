@@ -7,7 +7,7 @@ type Position = {
   longitude: number;
 }
 
-const PLAYER_SPEED = 2;
+const PLAYER_SPEED = 3;
 
 const getNewPosition = (current: Position, goal: Position): Position => {
   const dx = goal.longitude - current.longitude;

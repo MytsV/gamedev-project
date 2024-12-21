@@ -1,17 +1,29 @@
 import {TGameState, TPlayerState} from "../models.js";
 import {redis} from "../network/storage.js";
-import {buildUserHash, LATITUDE_HASH_KEY, LONGITUDE_HASH_KEY, ONLINE_SET_KEY} from "../../../common/index.js";
+import {
+  buildUserHash,
+  LATITUDE_HASH_KEY,
+  LONGITUDE_HASH_KEY,
+  ONLINE_SET_KEY,
+  USERNAME_HASH_KEY
+} from "../../../common/index.js";
 
 const getPlayerState = async (userId: string, isMain: boolean): Promise<TPlayerState> => {
   const longitude = await redis.hget(buildUserHash(userId), LONGITUDE_HASH_KEY);
   const latitude = await redis.hget(buildUserHash(userId), LATITUDE_HASH_KEY);
+  const username = await redis.hget(buildUserHash(userId), USERNAME_HASH_KEY);
 
   if (!latitude || !longitude) {
     throw Error('The player does not have a position assigned');
   }
 
+  if (!username) {
+    throw Error('The player username is unknown');
+  }
+
   return {
     userId: userId,
+    username: username,
     longitude: parseFloat(longitude),
     latitude: parseFloat(latitude),
     isMain: isMain

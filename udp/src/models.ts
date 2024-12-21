@@ -33,6 +33,7 @@ export type TMoveMessage = z.infer<typeof MoveMessageSchema>;
 
 export const PlayerStateSchema = z.object({
   userId: z.string().nonempty(),
+  username: z.string().nonempty(),
   latitude: z.number(),
   longitude: z.number(),
   isMain: z.boolean(),
