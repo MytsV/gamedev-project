@@ -18,7 +18,7 @@ const data = {
   userId: userId,
   contents: contents,
   hmac: hmac,
-  event: 'connection',
+  event: 'hello',
 };
 
 const messageBuffer = Buffer.from(JSON.stringify(data));
@@ -26,13 +26,13 @@ const messageBuffer = Buffer.from(JSON.stringify(data));
 const SERVER_PORT = 8503;
 const SERVER_ADDRESS = 'localhost'; // Change this if your server is on a different address
 
-client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS, (error) => {
-  if (error) {
-    console.error('Error sending message:', error);
-  } else {
-    console.log('Message sent:', data);
-  }
-});
+setInterval(() => {
+  client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS, (error) => {
+    if (error) {
+      console.error('Error sending message:', error);
+    }
+  });
+}, 1000);
 
 client.on('message', (msg, rinfo) => {
   console.log(msg.toString());

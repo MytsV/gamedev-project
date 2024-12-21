@@ -1,5 +1,5 @@
 import {
-  ConnectionMessageSchema,
+  HelloMessageSchema,
   EventType,
   MoveMessageSchema,
   TBaseMessage,
@@ -8,18 +8,17 @@ import {
 } from './models.js';
 import { z } from 'zod';
 import dgram from 'dgram';
-import { startPublishingState } from './network/publisher.js';
+import { publishState, stopStatePublish } from './network/publisher.js';
+
+const lastActivity = new Map<string, number>();
 
 const eventSchemas = new Map<EventType, z.ZodSchema<any>>([
-  [EventType.CONNECTION, ConnectionMessageSchema],
+  [EventType.HELLO, HelloMessageSchema],
   [EventType.MOVE, MoveMessageSchema],
 ]);
 
-const connectionHandler = (
-  message: TConnectionMessage,
-  rinfo: dgram.RemoteInfo
-) => {
-  startPublishingState(message.userId, rinfo);
+const helloHandler = (message: TConnectionMessage, rinfo: dgram.RemoteInfo) => {
+  publishState(message.userId, rinfo);
 };
 
 const moveHandler = (message: TMoveMessage, rinfo: dgram.RemoteInfo) => {};
@@ -28,9 +27,11 @@ const eventHandlers = new Map<
   EventType,
   (message: any, rinfo: dgram.RemoteInfo) => void
 >([
-  [EventType.CONNECTION, connectionHandler],
+  [EventType.HELLO, helloHandler],
   [EventType.MOVE, moveHandler],
 ]);
+
+const ACTIVITY_TIMEOUT = 5000;
 
 export const handleMessage = (
   message: TBaseMessage,
@@ -47,5 +48,18 @@ export const handleMessage = (
   }
 
   const parsedMessage = schema.parse(message);
+
+  lastActivity.set(parsedMessage.userId, Date.now());
+
   handler(parsedMessage, rinfo);
 };
+
+setInterval(() => {
+  const currentTime = Date.now();
+  for (const [userId, lastTime] of lastActivity) {
+    if (currentTime - lastTime > ACTIVITY_TIMEOUT) {
+      lastActivity.delete(userId);
+      stopStatePublish(userId);
+    }
+  }
+}, ACTIVITY_TIMEOUT);
