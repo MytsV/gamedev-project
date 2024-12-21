@@ -1,4 +1,4 @@
-import {TGameState, TPlayerState} from "../models.js";
+import {TGameState, TPlayerState, TSongState} from "../models.js";
 import {redis} from "../network/storage.js";
 import {
   buildUserHash,
@@ -30,6 +30,15 @@ const getPlayerState = async (userId: string, isMain: boolean): Promise<TPlayerS
   }
 };
 
+const getMockSong = (): TSongState => {
+  return {
+    id: '0',
+    title: 'Radiohead - No Surprises',
+    bpm: 157,
+    onset: 0,
+  }
+};
+
 export const getGameState = async (activeUserId: string): Promise<TGameState> => {
   const onlineUsers = await redis.smembers(ONLINE_SET_KEY);
   const players: TPlayerState[] = [];
@@ -42,6 +51,7 @@ export const getGameState = async (activeUserId: string): Promise<TGameState> =>
 
   return {
     players: players,
+    song: getMockSong(),
   }
 };
 

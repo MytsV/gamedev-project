@@ -41,8 +41,18 @@ export const PlayerStateSchema = z.object({
 
 export type TPlayerState = z.infer<typeof PlayerStateSchema>;
 
+export const SongStateSchema = z.object({
+  id: z.string().nonempty(),
+  title: z.string().nonempty(),
+  bpm: z.number(),
+  onset: z.number(),
+});
+
+export type TSongState = z.infer<typeof SongStateSchema>;
+
 export const GameStateSchema = z.object({
   players: z.array(PlayerStateSchema),
+  song: SongStateSchema.optional(),
 });
 
 export type TGameState = z.infer<typeof GameStateSchema>;
