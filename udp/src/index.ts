@@ -1,7 +1,7 @@
 import { BaseMessageSchema, TBaseMessage } from './models.js';
 import { validateMessage } from './auth.js';
-import {handleMessage} from "./handlers.js";
-import {server} from "./network/server.js";
+import { handleMessage } from './handlers.js';
+import { server } from './network/server.js';
 
 server.on('message', async (msg, rinfo) => {
   try {

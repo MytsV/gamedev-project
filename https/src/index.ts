@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { default as Redis } from 'ioredis';
-import {SESSION_HASH_KEY, buildUserHash} from "../../common/models.js";
+import { SESSION_HASH_KEY, buildUserHash } from '../../common/models.js';
 
 dotenv.config();
 const app = express();

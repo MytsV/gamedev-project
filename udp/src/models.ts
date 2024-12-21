@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export enum EventType {
   CONNECTION = 'connection',
-  MOVE = 'move'
+  MOVE = 'move',
 }
 
 export const BaseMessageSchema = z.object({
@@ -25,8 +25,23 @@ export const MoveMessageSchema = BaseMessageSchema.extend({
   event: z.literal(EventType.MOVE),
   contents: z.object({
     latitude: z.number(),
-    longitude: z.number()
+    longitude: z.number(),
   }),
 });
 
 export type TMoveMessage = z.infer<typeof MoveMessageSchema>;
+
+export const PlayerStateSchema = z.object({
+  userId: z.string().nonempty(),
+  latitude: z.number(),
+  longitude: z.number(),
+});
+
+export type TPlayerState = z.infer<typeof PlayerStateSchema>;
+
+export const GameStateSchema = z.object({
+  player: PlayerStateSchema,
+  otherPlayers: z.array(PlayerStateSchema),
+});
+
+export type TGameState = z.infer<typeof GameStateSchema>;
