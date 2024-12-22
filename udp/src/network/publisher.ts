@@ -14,25 +14,29 @@ export const publishState = async (
   locationId: string,
   rinfo: dgram.RemoteInfo
 ) => {
-  await initializePlayer(userId, locationId);
+  try {
+    await initializePlayer(userId, locationId);
 
-  const publishInterval = 1000; // 20 Hz
+    const publishInterval = 50; // 20 Hz
 
-  const previousIntervalId = ongoingPublishing.get(userId);
-  if (previousIntervalId) {
-    clearInterval(previousIntervalId);
+    const previousIntervalId = ongoingPublishing.get(userId);
+    if (previousIntervalId) {
+      clearInterval(previousIntervalId);
+    }
+
+    const intervalId = setInterval(async () => {
+      const gameState = await getGameState(userId, locationId);
+      server.send(JSON.stringify(gameState), rinfo.port, rinfo.address, (err) => {
+        if (err) {
+          console.log(`Could not publish the state to the user ${userId}`);
+        }
+      });
+    }, publishInterval);
+
+    ongoingPublishing.set(userId, intervalId);
+  } catch (e) {
+    console.error(`Error publishing the state: ${e}`);
   }
-
-  const intervalId = setInterval(async () => {
-    const gameState = await getGameState(userId, locationId);
-    server.send(JSON.stringify(gameState), rinfo.port, rinfo.address, (err) => {
-      if (err) {
-        console.log(`Could not publish the state to the user ${userId}`);
-      }
-    });
-  }, publishInterval);
-
-  ongoingPublishing.set(userId, intervalId);
 };
 
 export const stopStatePublish = async (userId: string) => {

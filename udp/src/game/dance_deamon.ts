@@ -72,11 +72,11 @@ const handleFlow = async (location: Location, song: Song) => {
 
   let combinationLength: number = location.minLevel;
 
+  setNextCombination(location, combinationLength);
+
   while (true) {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
     if (elapsedSeconds >= duration) break;
-
-    setNextCombination(location, combinationLength);
 
     await wait(msPerBeat * 4); // Wait 4 counts
 
@@ -86,7 +86,11 @@ const handleFlow = async (location: Location, song: Song) => {
 
     // Update leaderboards and status
 
-    await wait(msPerBeat * 4);
+    await wait(msPerBeat * 2);
+
+    setNextCombination(location, combinationLength);
+
+    await wait(msPerBeat * 2);
 
     combinationLength++;
     if (combinationLength > location.maxLevel) {
