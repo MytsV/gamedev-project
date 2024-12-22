@@ -19,7 +19,7 @@ const eventSchemas = new Map<EventType, z.ZodSchema<any>>([
 ]);
 
 const helloHandler = (message: TConnectionMessage, rinfo: dgram.RemoteInfo) => {
-  publishState(message.userId, rinfo);
+  publishState(message.userId, message.contents, rinfo);
 };
 
 const moveHandler = (message: TMoveMessage, rinfo: dgram.RemoteInfo) => {

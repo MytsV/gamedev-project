@@ -1,14 +1,22 @@
-import dgram from "dgram";
-import {server} from "./server.js";
-import {clearInterval} from "node:timers";
-import {disconnectPlayer, getGameState, initializePlayer} from "../game/state.js";
+import dgram from 'dgram';
+import { server } from './server.js';
+import { clearInterval } from 'node:timers';
+import {
+  disconnectPlayer,
+  getGameState,
+  initializePlayer,
+} from '../game/state.js';
 
 const ongoingPublishing = new Map<string, NodeJS.Timeout>();
 
-export const publishState = async (userId: string, rinfo: dgram.RemoteInfo) => {
-  await initializePlayer(userId);
+export const publishState = async (
+  userId: string,
+  locationId: string,
+  rinfo: dgram.RemoteInfo
+) => {
+  await initializePlayer(userId, locationId);
 
-  const publishInterval = 50; // 20 Hz
+  const publishInterval = 1000; // 20 Hz
 
   const previousIntervalId = ongoingPublishing.get(userId);
   if (previousIntervalId) {
@@ -16,7 +24,7 @@ export const publishState = async (userId: string, rinfo: dgram.RemoteInfo) => {
   }
 
   const intervalId = setInterval(async () => {
-    const gameState = await getGameState(userId);
+    const gameState = await getGameState(userId, locationId);
     server.send(JSON.stringify(gameState), rinfo.port, rinfo.address, (err) => {
       if (err) {
         console.log(`Could not publish the state to the user ${userId}`);
@@ -25,7 +33,7 @@ export const publishState = async (userId: string, rinfo: dgram.RemoteInfo) => {
   }, publishInterval);
 
   ongoingPublishing.set(userId, intervalId);
-}
+};
 
 export const stopStatePublish = async (userId: string) => {
   await disconnectPlayer(userId);

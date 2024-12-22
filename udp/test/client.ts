@@ -10,7 +10,7 @@ const calculateHmac = (message: string, secretKey: string): string => {
 const userId = process.argv[2];
 const secretKey = process.argv[3];
 
-const contents = 'Hello!';
+const contents = '0';
 
 const hmac = calculateHmac(JSON.stringify(contents), secretKey);
 
@@ -34,25 +34,25 @@ setInterval(() => {
   });
 }, 1000);
 
-setTimeout(() => {
-  const contents = {
-    latitude: 10,
-    longitude: 5,
-  };
-
-  const hmac = calculateHmac(JSON.stringify(contents), secretKey);
-
-  const data = {
-    userId: userId,
-    contents: contents,
-    hmac: hmac,
-    event: 'move',
-  };
-
-  const messageBuffer = Buffer.from(JSON.stringify(data));
-
-  client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS);
-}, 5000);
+// setTimeout(() => {
+//   const contents = {
+//     latitude: 10,
+//     longitude: 5,
+//   };
+//
+//   const hmac = calculateHmac(JSON.stringify(contents), secretKey);
+//
+//   const data = {
+//     userId: userId,
+//     contents: contents,
+//     hmac: hmac,
+//     event: 'move',
+//   };
+//
+//   const messageBuffer = Buffer.from(JSON.stringify(data));
+//
+//   client.send(messageBuffer, SERVER_PORT, SERVER_ADDRESS);
+// }, 5000);
 
 client.on('message', (msg, rinfo) => {
   console.log(msg.toString());

@@ -1,11 +1,15 @@
-import {redis} from "../network/storage.js";
-import {buildUserHash, LATITUDE_HASH_KEY, LONGITUDE_HASH_KEY} from "../../../common/index.js";
-import {clearInterval} from "node:timers";
+import { redis } from '../network/storage.js';
+import {
+  buildUserHash,
+  LATITUDE_HASH_KEY,
+  LONGITUDE_HASH_KEY,
+} from '../../../common/index.js';
+import { clearInterval } from 'node:timers';
 
 type Position = {
   latitude: number;
   longitude: number;
-}
+};
 
 const PLAYER_SPEED = 3;
 
@@ -51,18 +55,25 @@ export const issueMove = (userId: string, goal: Position) => {
       return;
     }
 
-    const newPosition = getNewPosition({
-      latitude: parseFloat(latitude), longitude: parseFloat(longitude)
-    }, goal);
+    const newPosition = getNewPosition(
+      {
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      },
+      goal
+    );
 
     redis.hset(userHash, LATITUDE_HASH_KEY, newPosition.latitude);
     redis.hset(userHash, LONGITUDE_HASH_KEY, newPosition.longitude);
 
-    if (Math.abs(newPosition.longitude - goal.longitude) < POSITIONING_THRESHOLD &&
-      Math.abs(newPosition.latitude - goal.latitude) < POSITIONING_THRESHOLD) {
+    if (
+      Math.abs(newPosition.longitude - goal.longitude) <
+        POSITIONING_THRESHOLD &&
+      Math.abs(newPosition.latitude - goal.latitude) < POSITIONING_THRESHOLD
+    ) {
       clearInterval(intervalId);
     }
   }, POSITIONING_INTERVAL);
 
   ongoingPositioning.set(userId, intervalId);
-}
+};

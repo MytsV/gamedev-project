@@ -5,6 +5,18 @@ export enum EventType {
   MOVE = 'move',
 }
 
+export enum Mark {
+  MISS = 'miss',
+  PERFECT = 'perfect',
+  GOOD = 'good',
+  BAD = 'bad',
+}
+
+export enum PlayerStatus {
+  IDLE = 'idle',
+  DANCING = 'dancing',
+}
+
 export const BaseMessageSchema = z.object({
   userId: z.string().nonempty(),
   contents: z.any(),
@@ -16,7 +28,7 @@ export type TBaseMessage = z.infer<typeof BaseMessageSchema>;
 
 export const HelloMessageSchema = BaseMessageSchema.extend({
   event: z.literal(EventType.HELLO),
-  contents: z.literal('Hello!'),
+  contents: z.string(),
 });
 
 export type TConnectionMessage = z.infer<typeof HelloMessageSchema>;
@@ -34,9 +46,12 @@ export type TMoveMessage = z.infer<typeof MoveMessageSchema>;
 export const PlayerStateSchema = z.object({
   userId: z.string().nonempty(),
   username: z.string().nonempty(),
+  locationId: z.string(),
   latitude: z.number(),
   longitude: z.number(),
   isMain: z.boolean(),
+  status: z.nativeEnum(PlayerStatus),
+  lastMark: z.nativeEnum(Mark).optional(),
 });
 
 export type TPlayerState = z.infer<typeof PlayerStateSchema>;
@@ -46,6 +61,7 @@ export const SongStateSchema = z.object({
   title: z.string().nonempty(),
   bpm: z.number(),
   onset: z.number(),
+  startTimestamp: z.number(),
 });
 
 export type TSongState = z.infer<typeof SongStateSchema>;
@@ -53,6 +69,8 @@ export type TSongState = z.infer<typeof SongStateSchema>;
 export const GameStateSchema = z.object({
   players: z.array(PlayerStateSchema),
   song: SongStateSchema.optional(),
+  arrowCombination: z.array(z.string()).optional(),
+  locationTitle: z.string(),
 });
 
 export type TGameState = z.infer<typeof GameStateSchema>;
