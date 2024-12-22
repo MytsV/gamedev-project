@@ -23,6 +23,17 @@ model Song {
   title  String
   bpm    Int
   onset  Float
+  duration  Float
 
   @@map("songs")
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  title     String
+  minLevel  Int
+  maxLevel  Int
+  inversion Boolean
+
+  @@map("locations")
 }
