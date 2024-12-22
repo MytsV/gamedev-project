@@ -3,6 +3,7 @@ import { z } from 'zod';
 export enum EventType {
   HELLO = 'hello',
   MOVE = 'move',
+  STATUS = 'status',
 }
 
 export enum Mark {
@@ -42,6 +43,13 @@ export const MoveMessageSchema = BaseMessageSchema.extend({
 });
 
 export type TMoveMessage = z.infer<typeof MoveMessageSchema>;
+
+export const StatusMessageSchema = BaseMessageSchema.extend({
+  event: z.literal(EventType.STATUS),
+  contents: z.nativeEnum(PlayerStatus),
+});
+
+export type TStatusMessage = z.infer<typeof StatusMessageSchema>;
 
 export const PlayerStateSchema = z.object({
   userId: z.string().nonempty(),

@@ -1,4 +1,5 @@
 import {
+  Mark,
   PlayerStatus,
   TGameState,
   TPlayerState,
@@ -14,6 +15,7 @@ import {
   LONGITUDE_HASH_KEY,
   PLAYERS_HASH_KEY,
   SONG_HASH_KEY,
+  STATUS_HASH_KEY,
   TITLE_HASH_KEY,
   USERNAME_HASH_KEY,
 } from '../../../common/index.js';
@@ -25,16 +27,23 @@ const getPlayerState = async (
 ): Promise<TPlayerState> => {
   const userHash = buildUserHash(userId);
 
-  const locationId = await redis.hget(userHash, LOCATION_ID_HASH_KEY);
-  const longitude = await redis.hget(userHash, LONGITUDE_HASH_KEY);
-  const latitude = await redis.hget(userHash, LATITUDE_HASH_KEY);
-  const username = await redis.hget(userHash, USERNAME_HASH_KEY);
+  const userHashData = await redis.hgetall(userHash);
+
+  const locationId = userHashData[LOCATION_ID_HASH_KEY];
+  const longitude = userHashData[LONGITUDE_HASH_KEY];
+  const latitude = userHashData[LATITUDE_HASH_KEY];
+  const username = userHashData[USERNAME_HASH_KEY];
+  const status = userHashData[STATUS_HASH_KEY] as PlayerStatus;
+  let lastMark: Mark | undefined = undefined;
+  if (STATUS_HASH_KEY in userHashData) {
+    lastMark = userHashData[STATUS_HASH_KEY] as Mark;
+  }
 
   if (!latitude || !longitude) {
     throw Error('The player does not have a position assigned');
   }
 
-  if (!locationId) {
+  if (!locationId || !status) {
     throw Error('The player is not present on any location');
   }
 
@@ -42,15 +51,15 @@ const getPlayerState = async (
     throw Error('The player username is unknown');
   }
 
-  // TODO: retrieve status and last mark
   return {
     userId: userId,
     username: username,
     longitude: parseFloat(longitude),
     latitude: parseFloat(latitude),
     isMain: isMain,
-    status: PlayerStatus.IDLE,
+    status: status,
     locationId: locationId,
+    lastMark: lastMark,
   };
 };
 
@@ -102,10 +111,14 @@ export const getGameState = async (
 
   const onlineUsers = await redis.smembers(locationPlayersHash);
   const players: TPlayerState[] = [];
+  let isDancing = false;
 
   for (const onlineUserId of onlineUsers) {
     const isMain = activeUserId === onlineUserId;
     const playerState = await getPlayerState(onlineUserId, isMain);
+    if (isMain) {
+      isDancing = playerState.status === PlayerStatus.DANCING;
+    }
     if (playerState.locationId !== locationId) {
       console.error(`Player ${onlineUserId} has a faulty locationId`);
       continue;
@@ -117,7 +130,9 @@ export const getGameState = async (
     players: players,
     song: await getLocationSong(locationHash),
     locationTitle: await getLocationTitle(locationHash),
-    arrowCombination: await getLocationArrowCombination(locationHash),
+    arrowCombination: isDancing
+      ? await getLocationArrowCombination(locationHash)
+      : undefined,
   };
 };
 
@@ -140,6 +155,7 @@ export const initializePlayer = async (userId: string, locationId: string) => {
 
   const userHash = buildUserHash(userId);
   await redis.hset(userHash, LOCATION_ID_HASH_KEY, locationId);
+  await redis.hsetnx(userHash, STATUS_HASH_KEY, PlayerStatus.IDLE);
   await redis.hsetnx(userHash, LONGITUDE_HASH_KEY, 0);
   await redis.hsetnx(userHash, LATITUDE_HASH_KEY, 0);
 };

@@ -26,11 +26,16 @@ export const publishState = async (
 
     const intervalId = setInterval(async () => {
       const gameState = await getGameState(userId, locationId);
-      server.send(JSON.stringify(gameState), rinfo.port, rinfo.address, (err) => {
-        if (err) {
-          console.log(`Could not publish the state to the user ${userId}`);
+      server.send(
+        JSON.stringify(gameState),
+        rinfo.port,
+        rinfo.address,
+        (err) => {
+          if (err) {
+            console.log(`Could not publish the state to the user ${userId}`);
+          }
         }
-      });
+      );
     }, publishInterval);
 
     ongoingPublishing.set(userId, intervalId);

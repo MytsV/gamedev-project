@@ -1,21 +1,25 @@
 import {
-  HelloMessageSchema,
   EventType,
+  HelloMessageSchema,
   MoveMessageSchema,
+  StatusMessageSchema,
   TBaseMessage,
   TConnectionMessage,
   TMoveMessage,
+  TStatusMessage,
 } from './models.js';
 import { z } from 'zod';
 import dgram from 'dgram';
 import { publishState, stopStatePublish } from './network/publisher.js';
 import { issueMove } from './game/positioning.js';
+import { changeStatus } from './game/status.js';
 
 const lastActivity = new Map<string, number>();
 
 const eventSchemas = new Map<EventType, z.ZodSchema<any>>([
   [EventType.HELLO, HelloMessageSchema],
   [EventType.MOVE, MoveMessageSchema],
+  [EventType.STATUS, StatusMessageSchema],
 ]);
 
 const helloHandler = (message: TConnectionMessage, rinfo: dgram.RemoteInfo) => {
@@ -29,12 +33,17 @@ const moveHandler = (message: TMoveMessage, rinfo: dgram.RemoteInfo) => {
   });
 };
 
+const statusHandler = (message: TStatusMessage, rinfo: dgram.RemoteInfo) => {
+  changeStatus(message.userId, message.contents);
+};
+
 const eventHandlers = new Map<
   EventType,
   (message: any, rinfo: dgram.RemoteInfo) => void
 >([
   [EventType.HELLO, helloHandler],
   [EventType.MOVE, moveHandler],
+  [EventType.STATUS, statusHandler],
 ]);
 
 const ACTIVITY_TIMEOUT = 5000;
