@@ -3,8 +3,14 @@ import { prisma, redis } from '../network/storage.js';
 import {
   ARROWS_HASH_KEY,
   buildLocationHash,
+  buildUserHash,
+  LAST_MARK_HASH_KEY,
+  MARKS_HASH_KEY,
+  PLAYERS_HASH_KEY,
   SONG_HASH_KEY,
+  STATUS_HASH_KEY,
 } from '../../../common/index.js';
+import { Mark, PlayerStatus } from '../models.js';
 
 const getRandomSong = async (): Promise<Song> => {
   const songs = await prisma.song.findMany();
@@ -59,6 +65,49 @@ const removeCombination = (location: Location) => {
   redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
 };
 
+const setScores = async (location: Location) => {
+  const locationHash = buildLocationHash(location.id.toString());
+
+  const locationPlayersHash = `${locationHash}:${PLAYERS_HASH_KEY}`;
+  const locationMarksHash = `${locationHash}:${MARKS_HASH_KEY}`;
+
+  const allPlayers = await redis.smembers(locationPlayersHash);
+  const sentMarks = await redis.hgetall(locationMarksHash);
+
+  const allMarks = new Map<string, string>();
+
+  for (const playerId of allPlayers) {
+    const userHash = buildUserHash(playerId);
+    const playerStatus = await redis.hget(userHash, STATUS_HASH_KEY);
+    const isDancing = playerStatus === PlayerStatus.DANCING;
+
+    if (!isDancing) continue;
+
+    if (playerId in sentMarks) {
+      allMarks.set(playerId, sentMarks[playerId]);
+    } else {
+      allMarks.set(playerId, Mark.MISS);
+      await redis.hset(userHash, LAST_MARK_HASH_KEY, Mark.MISS);
+    }
+  }
+
+  // TODO: build leaderboard
+};
+
+const removeMarks = async (location: Location) => {
+  const locationHash = buildLocationHash(location.id.toString());
+  const locationMarksHash = `${locationHash}:${MARKS_HASH_KEY}`;
+  await redis.del(locationMarksHash);
+
+  const locationPlayersHash = `${locationHash}:${PLAYERS_HASH_KEY}`;
+  const allPlayers = await redis.smembers(locationPlayersHash);
+
+  for (const playerId of allPlayers) {
+    const userHash = buildUserHash(playerId);
+    await redis.hdel(userHash, LAST_MARK_HASH_KEY);
+  }
+};
+
 const handleFlow = async (location: Location, song: Song) => {
   // Both onset and duration is specified in seconds
   const { onset, bpm, duration } = song;
@@ -75,6 +124,8 @@ const handleFlow = async (location: Location, song: Song) => {
   setNextCombination(location, combinationLength);
 
   while (true) {
+    removeMarks(location);
+
     const elapsedSeconds = (Date.now() - startTime) / 1000;
     if (elapsedSeconds >= duration) break;
 
@@ -82,11 +133,11 @@ const handleFlow = async (location: Location, song: Song) => {
 
     removeCombination(location);
 
-    await wait(msPerBeat * 8); // Wait 8 counts
+    await wait(msPerBeat * 6);
 
-    // Update leaderboards and status
+    setScores(location);
 
-    await wait(msPerBeat * 2);
+    await wait(msPerBeat * 4);
 
     setNextCombination(location, combinationLength);
 

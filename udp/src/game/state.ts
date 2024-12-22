@@ -10,9 +10,11 @@ import {
   ARROWS_HASH_KEY,
   buildLocationHash,
   buildUserHash,
+  LAST_MARK_HASH_KEY,
   LATITUDE_HASH_KEY,
   LOCATION_ID_HASH_KEY,
   LONGITUDE_HASH_KEY,
+  MARKS_HASH_KEY,
   PLAYERS_HASH_KEY,
   SONG_HASH_KEY,
   STATUS_HASH_KEY,
@@ -35,8 +37,8 @@ const getPlayerState = async (
   const username = userHashData[USERNAME_HASH_KEY];
   const status = userHashData[STATUS_HASH_KEY] as PlayerStatus;
   let lastMark: Mark | undefined = undefined;
-  if (STATUS_HASH_KEY in userHashData) {
-    lastMark = userHashData[STATUS_HASH_KEY] as Mark;
+  if (LAST_MARK_HASH_KEY in userHashData) {
+    lastMark = userHashData[LAST_MARK_HASH_KEY] as Mark;
   }
 
   if (!latitude || !longitude) {
@@ -153,6 +155,8 @@ export const initializePlayer = async (userId: string, locationId: string) => {
 
   await redis.sadd(locationPlayersHash, userId);
 
+  // TODO: check if entering a new location
+
   const userHash = buildUserHash(userId);
   await redis.hset(userHash, LOCATION_ID_HASH_KEY, locationId);
   await redis.hsetnx(userHash, STATUS_HASH_KEY, PlayerStatus.IDLE);
@@ -184,6 +188,7 @@ const initializeLocations = async () => {
     await redis.del(locationHash);
     await redis.del(`${locationHash}:${PLAYERS_HASH_KEY}`);
     await redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
+    await redis.del(`${locationHash}:${MARKS_HASH_KEY}`);
 
     await redis.hmset(locationHash, TITLE_HASH_KEY, location.title);
 

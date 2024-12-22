@@ -10,9 +10,10 @@ export const LATITUDE_HASH_KEY = 'latitude';
 export const LONGITUDE_HASH_KEY = 'longitude';
 export const LOCATION_ID_HASH_KEY = 'location_id';
 export const STATUS_HASH_KEY = 'status';
-export const LAST_MOVE_HASH_KEY = 'last_move';
+export const LAST_MARK_HASH_KEY = 'last_move';
 
 export const TITLE_HASH_KEY = 'title';
 export const SONG_HASH_KEY= 'song';
 export const ARROWS_HASH_KEY = 'arrow_combination';
 export const PLAYERS_HASH_KEY = 'players';
+export const MARKS_HASH_KEY = 'marks';

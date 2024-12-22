@@ -4,6 +4,7 @@ export enum EventType {
   HELLO = 'hello',
   MOVE = 'move',
   STATUS = 'status',
+  MARK = 'mark',
 }
 
 export enum Mark {
@@ -50,6 +51,13 @@ export const StatusMessageSchema = BaseMessageSchema.extend({
 });
 
 export type TStatusMessage = z.infer<typeof StatusMessageSchema>;
+
+export const MarkMessageSchema = BaseMessageSchema.extend({
+  event: z.literal(EventType.MARK),
+  contents: z.nativeEnum(Mark),
+});
+
+export type TMarkMessage = z.infer<typeof MarkMessageSchema>;
 
 export const PlayerStateSchema = z.object({
   userId: z.string().nonempty(),
