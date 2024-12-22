@@ -17,6 +17,7 @@ import {
   TITLE_HASH_KEY,
   USERNAME_HASH_KEY,
 } from '../../../common/index.js';
+import { runDanceFloor } from './dance_deamon.js';
 
 const getPlayerState = async (
   userId: string,
@@ -76,7 +77,7 @@ const getLocationSong = async (
     id: songData.id,
     title: songData.title,
     startTimestamp: parseInt(songData.startTimestamp),
-    onset: parseInt(songData.onset),
+    onset: parseFloat(songData.onset),
     bpm: parseInt(songData.bpm),
   };
 };
@@ -169,6 +170,8 @@ const initializeLocations = async () => {
     await redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
 
     await redis.hmset(locationHash, TITLE_HASH_KEY, location.title);
+
+    runDanceFloor(location);
   }
 };
 
