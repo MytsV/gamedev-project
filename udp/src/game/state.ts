@@ -4,7 +4,7 @@ import {
   TPlayerState,
   TSongState,
 } from '../models.js';
-import { redis } from '../network/storage.js';
+import { prisma, redis } from '../network/storage.js';
 import {
   ARROWS_HASH_KEY,
   buildLocationHash,
@@ -157,30 +157,23 @@ export const disconnectPlayer = async (userId: string) => {
   await redis.hdel(userHash, LONGITUDE_HASH_KEY);
 };
 
-const getMockSong = (): TSongState => {
-  return {
-    id: '0',
-    title: 'Radiohead - No Surprises',
-    bpm: 157,
-    onset: 0,
-    startTimestamp: Date.now(),
-  };
+const initializeLocations = async () => {
+  const locations = await prisma.location.findMany();
+
+  for (const location of locations) {
+    const locationHash = buildLocationHash(location.id.toString());
+
+    // TODO: replace with flushing the whole storage
+    await redis.del(locationHash);
+    await redis.del(`${locationHash}:${PLAYERS_HASH_KEY}`);
+    await redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
+
+    await redis.hmset(locationHash, TITLE_HASH_KEY, location.title);
+  }
 };
 
 export const resetState = async () => {
   // TODO: refresh the whole storage
   //await redis.flushall();
-  // TODO: load locations from the persistent database
-  const locationHash = buildLocationHash('0');
-  await redis.del(locationHash);
-  await redis.del(`${locationHash}:${PLAYERS_HASH_KEY}`);
-
-  // in general the song should be set from the daemon
-  const songData: TSongState = getMockSong();
-
-  await redis.hmset(locationHash, TITLE_HASH_KEY, 'Hip-Hop');
-
-  await redis.hmset(`${locationHash}:${SONG_HASH_KEY}`, songData);
-  await redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
-  await redis.rpush(`${locationHash}:${ARROWS_HASH_KEY}`, ...[0, 1, 2, 3]);
+  await initializeLocations();
 };

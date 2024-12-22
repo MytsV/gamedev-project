@@ -10,7 +10,7 @@ const calculateHmac = (message: string, secretKey: string): string => {
 const userId = process.argv[2];
 const secretKey = process.argv[3];
 
-const contents = '0';
+const contents = '1';
 
 const hmac = calculateHmac(JSON.stringify(contents), secretKey);
 
