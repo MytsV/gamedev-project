@@ -155,13 +155,22 @@ export const initializePlayer = async (userId: string, locationId: string) => {
 
   await redis.sadd(locationPlayersHash, userId);
 
-  // TODO: check if entering a new location
-
   const userHash = buildUserHash(userId);
+
+  const oldLocationId = await redis.hget(userHash, LOCATION_ID_HASH_KEY);
+
+  if (!oldLocationId || oldLocationId !== locationId) {
+    await redis.hset(userHash, STATUS_HASH_KEY, PlayerStatus.IDLE);
+    await redis.hset(userHash, LONGITUDE_HASH_KEY, 0);
+    await redis.hset(userHash, LATITUDE_HASH_KEY, 0);
+
+    if (oldLocationId) {
+      const oldLocationHash = buildLocationHash(oldLocationId);
+      await redis.srem(`${oldLocationHash}:${PLAYERS_HASH_KEY}`, userId);
+    }
+  }
+
   await redis.hset(userHash, LOCATION_ID_HASH_KEY, locationId);
-  await redis.hsetnx(userHash, STATUS_HASH_KEY, PlayerStatus.IDLE);
-  await redis.hsetnx(userHash, LONGITUDE_HASH_KEY, 0);
-  await redis.hsetnx(userHash, LATITUDE_HASH_KEY, 0);
 };
 
 export const disconnectPlayer = async (userId: string) => {
