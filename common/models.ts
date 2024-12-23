@@ -18,3 +18,4 @@ export const SONG_HASH_KEY= 'song';
 export const ARROWS_HASH_KEY = 'arrow_combination';
 export const PLAYERS_HASH_KEY = 'players';
 export const MARKS_HASH_KEY = 'marks';
+export const SCORES_HASH_KEY = 'scores';

@@ -7,8 +7,10 @@ import {
   LAST_MARK_HASH_KEY,
   MARKS_HASH_KEY,
   PLAYERS_HASH_KEY,
+  SCORES_HASH_KEY,
   SONG_HASH_KEY,
   STATUS_HASH_KEY,
+  USERNAME_HASH_KEY,
 } from '../../../common/index.js';
 import { Mark, PlayerStatus } from '../models.js';
 
@@ -65,6 +67,18 @@ const removeCombination = (location: Location) => {
   redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
 };
 
+const removeScores = (location: Location) => {
+  const locationHash = buildLocationHash(location.id.toString());
+  redis.del(`${locationHash}:${SCORES_HASH_KEY}`);
+};
+
+const markScores: Record<string, number> = {
+  [Mark.MISS]: 0,
+  [Mark.BAD]: 500,
+  [Mark.GOOD]: 1000,
+  [Mark.PERFECT]: 2000,
+};
+
 const setScores = async (location: Location) => {
   const locationHash = buildLocationHash(location.id.toString());
 
@@ -91,7 +105,20 @@ const setScores = async (location: Location) => {
     }
   }
 
-  // TODO: build leaderboard
+  const locationScoresHash = `${locationHash}:${SCORES_HASH_KEY}`;
+
+  for (const [playerId, mark] of allMarks) {
+    const score = markScores[mark];
+
+    const userHash = buildUserHash(playerId);
+    const username = await redis.hget(userHash, USERNAME_HASH_KEY);
+    if (!username) continue;
+
+    const currentScore = await redis.hget(locationScoresHash, username);
+    const updatedScore = currentScore ? parseInt(currentScore) + score : score;
+
+    await redis.hset(locationScoresHash, username, updatedScore.toString());
+  }
 };
 
 const removeMarks = async (location: Location) => {
@@ -150,6 +177,7 @@ const handleFlow = async (location: Location, song: Song) => {
   }
 
   removeCombination(location);
+  removeScores(location);
 };
 
 export const runDanceFloor = async (location: Location) => {

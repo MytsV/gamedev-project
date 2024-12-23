@@ -16,8 +16,8 @@ import {
   LATITUDE_HASH_KEY,
   LOCATION_ID_HASH_KEY,
   LONGITUDE_HASH_KEY,
-  MARKS_HASH_KEY,
   PLAYERS_HASH_KEY,
+  SCORES_HASH_KEY,
   SONG_HASH_KEY,
   STATUS_HASH_KEY,
   TITLE_HASH_KEY,
@@ -111,6 +111,21 @@ const getLocationArrowCombination = async (
   return arrowCombination.length === 0 ? undefined : arrowCombination;
 };
 
+const getLocationScores = async (locationHash: string) => {
+  const scores = await redis.hgetall(`${locationHash}:${SCORES_HASH_KEY}`);
+
+  const playerScores: Record<string, number> = {};
+  for (const [playerId, score] of Object.entries(scores)) {
+    playerScores[playerId] = parseInt(score);
+  }
+
+  if (Object.keys(playerScores).length === 0) {
+    return undefined;
+  }
+
+  return playerScores;
+};
+
 export const getGameState = async (
   activeUserId: string,
   locationId: string
@@ -142,6 +157,7 @@ export const getGameState = async (
     arrowCombination: isDancing
       ? await getLocationArrowCombination(locationHash)
       : undefined,
+    scores: await getLocationScores(locationHash),
   };
 };
 

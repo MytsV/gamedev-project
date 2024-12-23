@@ -88,6 +88,7 @@ export const GameStateSchema = z.object({
   song: SongStateSchema.optional(),
   arrowCombination: z.array(z.string()).optional(),
   locationTitle: z.string(),
+  scores: z.record(z.string(), z.number()).optional(),
 });
 
 export type TGameState = z.infer<typeof GameStateSchema>;
