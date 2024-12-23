@@ -1,3 +1,22 @@
+# How to run
+
+1) `docker compose up` to init databases
+2) Set up .env like:
+```dotenv
+POSTGRES_USER=...
+POSTGRES_PASSWORD=...
+POSTGRES_DB=twirl
+
+POSTGRES_PORT=8500
+REDIS_PORT=8501
+
+PRISMA_DATABASE_URL="postgresql://...:...@localhost:8500/twirl?schema=public"
+```
+3) `npx prisma migrate dev` to perform migrations
+4) `npm run dev` from ./http to start the auth server
+5) Through a DB manager (either `docker exec` or something like DBeaver) set up songs and locations. Use utils/get_bpm.py to determine BPM and onset
+6) `npm run dev` from ./udp to start the game state server
+
 # Танцювальний мультиплеєр
 
 Цей репозиторій містить серверну частину. Код клієнта буде опублікований окремо.
