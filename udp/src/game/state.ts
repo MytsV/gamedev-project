@@ -1,4 +1,5 @@
 import {
+  playerColors,
   Mark,
   PlayerStatus,
   TGameState,
@@ -10,6 +11,7 @@ import {
   ARROWS_HASH_KEY,
   buildLocationHash,
   buildUserHash,
+  COLOR_HASH_KEY,
   LAST_MARK_HASH_KEY,
   LATITUDE_HASH_KEY,
   LOCATION_ID_HASH_KEY,
@@ -40,6 +42,10 @@ const getPlayerState = async (
   if (LAST_MARK_HASH_KEY in userHashData) {
     lastMark = userHashData[LAST_MARK_HASH_KEY] as Mark;
   }
+  let color: string | undefined = undefined;
+  if (COLOR_HASH_KEY in userHashData) {
+    color = userHashData[COLOR_HASH_KEY];
+  }
 
   if (!latitude || !longitude) {
     throw Error('The player does not have a position assigned');
@@ -62,6 +68,7 @@ const getPlayerState = async (
     status: status,
     locationId: locationId,
     lastMark: lastMark,
+    color: color,
   };
 };
 
@@ -140,6 +147,11 @@ export const getGameState = async (
 
 const MAX_PLAYERS = 6;
 
+const getRandomColor = () => {
+  const randomIndex = Math.floor(Math.random() * playerColors.length);
+  return playerColors[randomIndex];
+};
+
 export const initializePlayer = async (userId: string, locationId: string) => {
   const locationHash = buildLocationHash(locationId);
   const locationExists = await redis.exists(locationHash);
@@ -168,6 +180,8 @@ export const initializePlayer = async (userId: string, locationId: string) => {
       const oldLocationHash = buildLocationHash(oldLocationId);
       await redis.srem(`${oldLocationHash}:${PLAYERS_HASH_KEY}`, userId);
     }
+
+    await redis.hset(userHash, COLOR_HASH_KEY, getRandomColor());
   }
 
   await redis.hset(userHash, LOCATION_ID_HASH_KEY, locationId);
@@ -193,12 +207,6 @@ const initializeLocations = async () => {
   for (const location of locations) {
     const locationHash = buildLocationHash(location.id.toString());
 
-    // TODO: replace with flushing the whole storage
-    await redis.del(locationHash);
-    await redis.del(`${locationHash}:${PLAYERS_HASH_KEY}`);
-    await redis.del(`${locationHash}:${ARROWS_HASH_KEY}`);
-    await redis.del(`${locationHash}:${MARKS_HASH_KEY}`);
-
     await redis.hmset(locationHash, TITLE_HASH_KEY, location.title);
 
     runDanceFloor(location);
@@ -206,7 +214,6 @@ const initializeLocations = async () => {
 };
 
 export const resetState = async () => {
-  // TODO: refresh the whole storage
-  //await redis.flushall();
+  await redis.flushall();
   await initializeLocations();
 };

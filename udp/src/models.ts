@@ -68,6 +68,7 @@ export const PlayerStateSchema = z.object({
   isMain: z.boolean(),
   status: z.nativeEnum(PlayerStatus),
   lastMark: z.nativeEnum(Mark).optional(),
+  color: z.string().optional(),
 });
 
 export type TPlayerState = z.infer<typeof PlayerStateSchema>;
@@ -90,3 +91,5 @@ export const GameStateSchema = z.object({
 });
 
 export type TGameState = z.infer<typeof GameStateSchema>;
+
+export const playerColors = ['green', 'lavender', 'yellow', 'maroon', 'white'];
